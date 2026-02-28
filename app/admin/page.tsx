@@ -10,7 +10,6 @@ import {
   User,
   Phone,
   MapPin,
-  Mail,
   ChefHat,
   Truck,
   CheckCircle2,
@@ -591,7 +590,6 @@ function OrdersManagement() {
             <tr className="border-b border-border bg-muted/50">
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">ID</th>
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">Customer</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">Email</th>
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">Restaurant</th>
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">Type</th>
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">Total</th>
@@ -612,9 +610,6 @@ function OrdersManagement() {
                   </td>
                   <td className="px-4 py-3 font-medium text-card-foreground">
                     {order.customerName}
-                  </td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">
-                    {order.customerEmail || "-"}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {order.restaurantName}
@@ -720,22 +715,6 @@ function OrdersManagement() {
                     {selectedOrder.customerPhone}
                   </span>
                 </div>
-                {selectedOrder.customerEmail && (
-                  <div className="flex items-center gap-2">
-                    <Mail className="h-4 w-4 text-primary" />
-                    <span className="text-muted-foreground">
-                      {selectedOrder.customerEmail}
-                    </span>
-                  </div>
-                )}
-                {selectedOrder.userId && (
-                  <div className="flex items-center gap-2">
-                    <User className="h-4 w-4 text-primary" />
-                    <span className="font-mono text-xs text-muted-foreground">
-                      Account: {selectedOrder.userId}
-                    </span>
-                  </div>
-                )}
                 {selectedOrder.customerAddress && (
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-primary" />
