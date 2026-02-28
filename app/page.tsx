@@ -4,6 +4,7 @@ import { Header } from "@/components/header"
 import { Hero } from "@/components/hero"
 import { RestaurantCard } from "@/components/restaurant-card"
 import { Footer } from "@/components/footer"
+import { AuthDialog } from "@/components/auth-dialog"
 import { MapPin, Truck, CalendarDays } from "lucide-react"
 import { useMenuStore } from "@/lib/menu-store"
 
@@ -13,6 +14,7 @@ export default function HomePage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
+      <AuthDialog />
       <Hero />
       <main className="flex-1">
         {/* Features */}

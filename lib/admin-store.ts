@@ -9,7 +9,9 @@ export interface Order {
   type: "delivery" | "reservation"
   customerName: string
   customerPhone: string
+  customerEmail?: string
   customerAddress?: string
+  userId?: string
   date: string
   time: string
   guests?: number
@@ -41,7 +43,9 @@ export const useAdminStore = create<AdminState>((set) => ({
       type: "delivery",
       customerName: "Maria Garcia",
       customerPhone: "+34 612 345 678",
+      customerEmail: "maria@example.com",
       customerAddress: "Calle Gran Via, 45, Granada",
+      userId: "USR-DEMO1",
       date: "2026-02-28",
       time: "14:00",
       status: "preparing",
@@ -59,6 +63,8 @@ export const useAdminStore = create<AdminState>((set) => ({
       type: "reservation",
       customerName: "Carlos Lopez",
       customerPhone: "+34 678 901 234",
+      customerEmail: "carlos@example.com",
+      userId: "USR-DEMO2",
       date: "2026-03-01",
       time: "21:00",
       guests: 4,
@@ -78,7 +84,9 @@ export const useAdminStore = create<AdminState>((set) => ({
       type: "delivery",
       customerName: "Ana Martinez",
       customerPhone: "+34 654 321 987",
+      customerEmail: "ana@example.com",
       customerAddress: "Avenida de la Constitucion, 22, Granada",
+      userId: "USR-DEMO3",
       date: "2026-02-28",
       time: "20:30",
       status: "pending",

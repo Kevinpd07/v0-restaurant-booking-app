@@ -11,6 +11,7 @@ import {
   Truck,
   User,
   Phone,
+  LogIn,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,10 +19,12 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { AuthDialog } from "@/components/auth-dialog"
 import { DeliveryMap } from "@/components/delivery-map"
 import { useCartStore } from "@/lib/cart-store"
 import { useAdminStore } from "@/lib/admin-store"
 import { useMenuStore } from "@/lib/menu-store"
+import { useUserStore } from "@/lib/user-store"
 import { toast } from "sonner"
 
 export default function CartPage() {
@@ -29,12 +32,14 @@ export default function CartPage() {
     useCartStore()
   const addOrder = useAdminStore((s) => s.addOrder)
   const restaurants = useMenuStore((s) => s.restaurants)
+  const currentUser = useUserStore((s) => s.currentUser)
+  const openAuthDialog = useUserStore((s) => s.openAuthDialog)
   const [deliveryAddress, setDeliveryAddress] = useState("")
   const [, setDeliveryCoords] = useState<{
     lat: number
     lng: number
   } | null>(null)
-  const [form, setForm] = useState({ name: "", phone: "" })
+  const [phone, setPhone] = useState("")
   const [orderPlaced, setOrderPlaced] = useState(false)
 
   const total = getTotal()
@@ -46,8 +51,13 @@ export default function CartPage() {
     restaurants.find((r) => r.id === restaurantId)?.name || ""
 
   const handleOrder = () => {
-    if (!form.name || !form.phone) {
-      toast.error("Please enter your name and phone number")
+    if (!currentUser) {
+      openAuthDialog()
+      return
+    }
+    const customerPhone = phone || currentUser.phone
+    if (!customerPhone) {
+      toast.error("Please enter your phone number")
       return
     }
     if (!deliveryAddress) {
@@ -66,9 +76,11 @@ export default function CartPage() {
       })),
       total: finalTotal,
       type: "delivery",
-      customerName: form.name,
-      customerPhone: form.phone,
+      customerName: currentUser.name,
+      customerPhone,
+      customerEmail: currentUser.email,
       customerAddress: deliveryAddress,
+      userId: currentUser.id,
       date: new Date().toISOString().split("T")[0],
       time: new Date().toLocaleTimeString("en-GB", {
         hour: "2-digit",
@@ -80,13 +92,14 @@ export default function CartPage() {
 
     clearCart()
     setOrderPlaced(true)
-    toast.success("Order placed successfully")
+    toast.success("Order placed successfully!")
   }
 
   if (orderPlaced) {
     return (
       <div className="flex min-h-screen flex-col">
         <Header />
+        <AuthDialog />
         <main className="flex flex-1 flex-col items-center justify-center px-4 py-20 text-center">
           <div className="mx-auto max-w-md">
             <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
@@ -114,6 +127,7 @@ export default function CartPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
+      <AuthDialog />
       <main className="flex-1">
         <div className="mx-auto max-w-7xl px-4 py-10 lg:px-8">
           <Link
@@ -244,53 +258,87 @@ export default function CartPage() {
                     Delivery Details
                   </h2>
 
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="del-name" className="flex items-center gap-1.5 text-card-foreground">
-                        <User className="h-4 w-4 text-primary" />
-                        Name
-                      </Label>
-                      <Input
-                        id="del-name"
-                        placeholder="Your full name"
-                        value={form.name}
-                        onChange={(e) =>
-                          setForm({ ...form, name: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="del-phone" className="flex items-center gap-1.5 text-card-foreground">
-                        <Phone className="h-4 w-4 text-primary" />
-                        Phone
-                      </Label>
-                      <Input
-                        id="del-phone"
-                        type="tel"
-                        placeholder="+34 600 000 000"
-                        value={form.phone}
-                        onChange={(e) =>
-                          setForm({ ...form, phone: e.target.value })
-                        }
-                      />
-                    </div>
-                  </div>
+                  {currentUser ? (
+                    <div className="space-y-4">
+                      {/* Show logged-in user info */}
+                      <div className="flex items-center gap-3 rounded-lg border border-border bg-secondary/50 p-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                          {currentUser.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-card-foreground">
+                            {currentUser.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {currentUser.email}
+                          </p>
+                        </div>
+                      </div>
 
-                  <DeliveryMap
-                    onLocationSelect={(lat, lng, address) => {
-                      setDeliveryCoords({ lat, lng })
-                      setDeliveryAddress(address)
-                    }}
-                    selectedAddress={deliveryAddress}
-                  />
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="del-phone"
+                          className="flex items-center gap-1.5 text-card-foreground"
+                        >
+                          <Phone className="h-4 w-4 text-primary" />
+                          Phone
+                        </Label>
+                        <Input
+                          id="del-phone"
+                          type="tel"
+                          placeholder={currentUser.phone || "+34 600 000 000"}
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                        />
+                        {currentUser.phone && !phone && (
+                          <p className="text-xs text-muted-foreground">
+                            Will use your account phone: {currentUser.phone}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-4 rounded-lg border border-dashed border-border py-8 text-center">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted">
+                        <User className="h-7 w-7 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-card-foreground">
+                          Sign in to place your order
+                        </p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          Your orders will be linked to your account
+                        </p>
+                      </div>
+                      <Button
+                        onClick={openAuthDialog}
+                        className="gap-2"
+                      >
+                        <LogIn className="h-4 w-4" />
+                        Sign In / Register
+                      </Button>
+                    </div>
+                  )}
 
-                  <Button
-                    onClick={handleOrder}
-                    className="w-full"
-                    size="lg"
-                  >
-                    Confirm Order (&euro;{finalTotal.toFixed(2)})
-                  </Button>
+                  {currentUser && (
+                    <>
+                      <DeliveryMap
+                        onLocationSelect={(lat, lng, address) => {
+                          setDeliveryCoords({ lat, lng })
+                          setDeliveryAddress(address)
+                        }}
+                        selectedAddress={deliveryAddress}
+                      />
+
+                      <Button
+                        onClick={handleOrder}
+                        className="w-full"
+                        size="lg"
+                      >
+                        Confirm Order (&euro;{finalTotal.toFixed(2)})
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

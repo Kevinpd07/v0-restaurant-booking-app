@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dialog"
 import { MenuItemCard } from "@/components/menu-item-card"
 import { ReservationForm } from "@/components/reservation-form"
+import { AuthDialog } from "@/components/auth-dialog"
 import { useCartStore } from "@/lib/cart-store"
 import type { Restaurant } from "@/lib/data"
 
@@ -37,6 +38,7 @@ export function RestaurantDetail({
 
   return (
     <main className="flex-1">
+      <AuthDialog />
       {/* Hero */}
       <div className="relative h-64 overflow-hidden md:h-80 lg:h-96">
         <Image

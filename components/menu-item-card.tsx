@@ -3,6 +3,7 @@
 import { Plus, Minus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCartStore } from "@/lib/cart-store"
+import { useUserStore } from "@/lib/user-store"
 import type { MenuItem } from "@/lib/data"
 import { toast } from "sonner"
 
@@ -14,10 +15,16 @@ export function MenuItemCard({
   restaurantId: string
 }) {
   const { items, addItem, updateQuantity, removeItem } = useCartStore()
+  const currentUser = useUserStore((s) => s.currentUser)
+  const openAuthDialog = useUserStore((s) => s.openAuthDialog)
   const cartItem = items.find((i) => i.id === item.id)
   const quantity = cartItem?.quantity || 0
 
   const handleAdd = () => {
+    if (!currentUser) {
+      openAuthDialog()
+      return
+    }
     const otherRestaurant = items.find(
       (i) => i.restaurantId !== restaurantId
     )
