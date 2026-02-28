@@ -31,7 +31,7 @@ export function ReservationForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.name || !form.phone || !form.date || !form.time) {
-      toast.error("Por favor, completa todos los campos")
+      toast.error("Please fill in all fields")
       return
     }
 
@@ -51,7 +51,7 @@ export function ReservationForm({
       createdAt: new Date().toISOString(),
     })
 
-    toast.success("Reserva confirmada con éxito")
+    toast.success("Reservation confirmed successfully")
     onSuccess()
   }
 
@@ -60,11 +60,11 @@ export function ReservationForm({
       <div className="space-y-2">
         <Label htmlFor="res-name" className="flex items-center gap-1.5 text-card-foreground">
           <User className="h-4 w-4 text-primary" />
-          Nombre
+          Name
         </Label>
         <Input
           id="res-name"
-          placeholder="Tu nombre completo"
+          placeholder="Your full name"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
         />
@@ -72,7 +72,7 @@ export function ReservationForm({
       <div className="space-y-2">
         <Label htmlFor="res-phone" className="flex items-center gap-1.5 text-card-foreground">
           <Phone className="h-4 w-4 text-primary" />
-          Teléfono
+          Phone
         </Label>
         <Input
           id="res-phone"
@@ -86,7 +86,7 @@ export function ReservationForm({
         <div className="space-y-2">
           <Label htmlFor="res-date" className="flex items-center gap-1.5 text-card-foreground">
             <CalendarDays className="h-4 w-4 text-primary" />
-            Fecha
+            Date
           </Label>
           <Input
             id="res-date"
@@ -98,7 +98,7 @@ export function ReservationForm({
         <div className="space-y-2">
           <Label htmlFor="res-time" className="flex items-center gap-1.5 text-card-foreground">
             <Clock className="h-4 w-4 text-primary" />
-            Hora
+            Time
           </Label>
           <Input
             id="res-time"
@@ -111,7 +111,7 @@ export function ReservationForm({
       <div className="space-y-2">
         <Label htmlFor="res-guests" className="flex items-center gap-1.5 text-card-foreground">
           <Users className="h-4 w-4 text-primary" />
-          Comensales
+          Guests
         </Label>
         <Input
           id="res-guests"
@@ -123,7 +123,7 @@ export function ReservationForm({
         />
       </div>
       <Button type="submit" className="w-full" size="lg">
-        Confirmar Reserva
+        Confirm Reservation
       </Button>
     </form>
   )

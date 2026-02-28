@@ -21,15 +21,16 @@ import { Footer } from "@/components/footer"
 import { DeliveryMap } from "@/components/delivery-map"
 import { useCartStore } from "@/lib/cart-store"
 import { useAdminStore } from "@/lib/admin-store"
-import { restaurants } from "@/lib/data"
+import { useMenuStore } from "@/lib/menu-store"
 import { toast } from "sonner"
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, clearCart, getTotal } =
     useCartStore()
   const addOrder = useAdminStore((s) => s.addOrder)
+  const restaurants = useMenuStore((s) => s.restaurants)
   const [deliveryAddress, setDeliveryAddress] = useState("")
-  const [deliveryCoords, setDeliveryCoords] = useState<{
+  const [, setDeliveryCoords] = useState<{
     lat: number
     lng: number
   } | null>(null)
@@ -46,11 +47,11 @@ export default function CartPage() {
 
   const handleOrder = () => {
     if (!form.name || !form.phone) {
-      toast.error("Por favor, introduce tu nombre y teléfono")
+      toast.error("Please enter your name and phone number")
       return
     }
     if (!deliveryAddress) {
-      toast.error("Por favor, selecciona tu ubicación en el mapa")
+      toast.error("Please select your location on the map")
       return
     }
 
@@ -69,7 +70,7 @@ export default function CartPage() {
       customerPhone: form.phone,
       customerAddress: deliveryAddress,
       date: new Date().toISOString().split("T")[0],
-      time: new Date().toLocaleTimeString("es-ES", {
+      time: new Date().toLocaleTimeString("en-GB", {
         hour: "2-digit",
         minute: "2-digit",
       }),
@@ -79,7 +80,7 @@ export default function CartPage() {
 
     clearCart()
     setOrderPlaced(true)
-    toast.success("Pedido realizado con éxito")
+    toast.success("Order placed successfully")
   }
 
   if (orderPlaced) {
@@ -92,15 +93,15 @@ export default function CartPage() {
               <Truck className="h-10 w-10 text-primary" />
             </div>
             <h1 className="font-serif text-3xl font-bold text-foreground">
-              Pedido Confirmado
+              Order Confirmed
             </h1>
             <p className="mt-3 text-muted-foreground">
-              Tu pedido está en camino. Recibirás una notificación cuando esté
-              listo. Tiempo estimado de entrega: 30-45 minutos.
+              Your order is on its way. You will receive a notification when it
+              is ready. Estimated delivery time: 30-45 minutes.
             </p>
             <Link href="/">
               <Button className="mt-8" size="lg">
-                Volver a Restaurantes
+                Back to Restaurants
               </Button>
             </Link>
           </div>
@@ -120,11 +121,11 @@ export default function CartPage() {
             className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
-            Volver a restaurantes
+            Back to restaurants
           </Link>
 
           <h1 className="font-serif text-3xl font-bold text-foreground md:text-4xl">
-            Tu Pedido
+            Your Order
           </h1>
 
           {items.length === 0 ? (
@@ -133,13 +134,13 @@ export default function CartPage() {
                 <ShoppingCart className="h-10 w-10 text-muted-foreground" />
               </div>
               <h2 className="text-xl font-semibold text-foreground">
-                Tu carrito está vacío
+                Your cart is empty
               </h2>
               <p className="mt-2 text-muted-foreground">
-                Añade platos de alguno de nuestros restaurantes
+                Add dishes from one of our restaurants
               </p>
               <Link href="/">
-                <Button className="mt-6">Ver Restaurantes</Button>
+                <Button className="mt-6">Browse Restaurants</Button>
               </Link>
             </div>
           ) : (
@@ -163,7 +164,7 @@ export default function CartPage() {
                             {item.name}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            {item.price.toFixed(2)} &euro; / ud.
+                            &euro;{item.price.toFixed(2)} / unit
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
@@ -176,7 +177,7 @@ export default function CartPage() {
                             }
                           >
                             <Minus className="h-3 w-3" />
-                            <span className="sr-only">Quitar uno</span>
+                            <span className="sr-only">Remove one</span>
                           </Button>
                           <span className="w-6 text-center text-sm font-bold text-card-foreground">
                             {item.quantity}
@@ -190,7 +191,7 @@ export default function CartPage() {
                             }
                           >
                             <Plus className="h-3 w-3" />
-                            <span className="sr-only">Añadir uno</span>
+                            <span className="sr-only">Add one</span>
                           </Button>
                           <Button
                             variant="ghost"
@@ -199,11 +200,11 @@ export default function CartPage() {
                             onClick={() => removeItem(item.id)}
                           >
                             <Trash2 className="h-4 w-4" />
-                            <span className="sr-only">Eliminar</span>
+                            <span className="sr-only">Delete</span>
                           </Button>
                         </div>
                         <p className="w-20 text-right font-semibold text-card-foreground">
-                          {(item.price * item.quantity).toFixed(2)} &euro;
+                          &euro;{(item.price * item.quantity).toFixed(2)}
                         </p>
                       </div>
                     ))}
@@ -212,15 +213,15 @@ export default function CartPage() {
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
                     <span className="font-medium text-card-foreground">
-                      {total.toFixed(2)} &euro;
+                      &euro;{total.toFixed(2)}
                     </span>
                   </div>
                   <div className="mt-2 flex justify-between text-sm">
                     <span className="text-muted-foreground">
-                      Gastos de envío
+                      Delivery fee
                     </span>
                     <span className="font-medium text-card-foreground">
-                      {deliveryFee.toFixed(2)} &euro;
+                      &euro;{deliveryFee.toFixed(2)}
                     </span>
                   </div>
                   <Separator className="my-4" />
@@ -229,7 +230,7 @@ export default function CartPage() {
                       Total
                     </span>
                     <span className="font-serif text-lg font-bold text-primary">
-                      {finalTotal.toFixed(2)} &euro;
+                      &euro;{finalTotal.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -240,18 +241,18 @@ export default function CartPage() {
                 <div className="space-y-6 rounded-xl border border-border bg-card p-6">
                   <h2 className="flex items-center gap-2 font-serif text-xl font-bold text-card-foreground">
                     <Truck className="h-5 w-5 text-primary" />
-                    Datos de Envío
+                    Delivery Details
                   </h2>
 
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="del-name" className="flex items-center gap-1.5 text-card-foreground">
                         <User className="h-4 w-4 text-primary" />
-                        Nombre
+                        Name
                       </Label>
                       <Input
                         id="del-name"
-                        placeholder="Tu nombre completo"
+                        placeholder="Your full name"
                         value={form.name}
                         onChange={(e) =>
                           setForm({ ...form, name: e.target.value })
@@ -261,7 +262,7 @@ export default function CartPage() {
                     <div className="space-y-2">
                       <Label htmlFor="del-phone" className="flex items-center gap-1.5 text-card-foreground">
                         <Phone className="h-4 w-4 text-primary" />
-                        Teléfono
+                        Phone
                       </Label>
                       <Input
                         id="del-phone"
@@ -288,7 +289,7 @@ export default function CartPage() {
                     className="w-full"
                     size="lg"
                   >
-                    Confirmar Pedido ({finalTotal.toFixed(2)} &euro;)
+                    Confirm Order (&euro;{finalTotal.toFixed(2)})
                   </Button>
                 </div>
               </div>

@@ -23,12 +23,12 @@ export function MenuItemCard({
     )
     if (otherRestaurant) {
       toast.error(
-        "Solo puedes pedir de un restaurante a la vez. Vacía el carrito primero."
+        "You can only order from one restaurant at a time. Clear your cart first."
       )
       return
     }
     addItem(item, restaurantId)
-    toast.success(`${item.name} añadido al carrito`)
+    toast.success(`${item.name} added to cart`)
   }
 
   return (
@@ -39,7 +39,7 @@ export function MenuItemCard({
           {item.description}
         </p>
         <p className="mt-2 font-serif text-lg font-bold text-primary">
-          {item.price.toFixed(2)} &euro;
+          &euro;{item.price.toFixed(2)}
         </p>
       </div>
       <div className="flex flex-shrink-0 items-center gap-2">
@@ -56,7 +56,7 @@ export function MenuItemCard({
               }
             >
               <Minus className="h-3 w-3" />
-              <span className="sr-only">Quitar uno</span>
+              <span className="sr-only">Remove one</span>
             </Button>
             <span className="w-6 text-center text-sm font-bold text-card-foreground">
               {quantity}
@@ -68,7 +68,7 @@ export function MenuItemCard({
               onClick={handleAdd}
             >
               <Plus className="h-3 w-3" />
-              <span className="sr-only">Añadir uno</span>
+              <span className="sr-only">Add one</span>
             </Button>
           </>
         ) : (
@@ -78,7 +78,7 @@ export function MenuItemCard({
             onClick={handleAdd}
           >
             <Plus className="h-4 w-4" />
-            Añadir
+            Add
           </Button>
         )}
       </div>

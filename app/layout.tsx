@@ -15,8 +15,8 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Sabores de Granada - Restaurantes',
-  description: 'Descubre los mejores restaurantes de Granada. Pide a domicilio o reserva mesa.',
+  title: 'Flavors of Granada - Restaurants',
+  description: 'Discover the best restaurants in Granada. Order delivery or book a table.',
 }
 
 export default function RootLayout({
@@ -25,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className={`${playfair.variable} ${inter.variable}`}>
+    <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
       <body className="font-sans antialiased">
         {children}
         <Toaster richColors position="top-right" />

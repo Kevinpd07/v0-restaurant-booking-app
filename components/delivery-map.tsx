@@ -26,7 +26,7 @@ export function DeliveryMap({
       await import("leaflet/dist/leaflet.css")
 
       const map = L.map(mapRef.current!, {
-        center: [37.1760, -3.5988],
+        center: [37.176, -3.5988],
         zoom: 14,
       })
 
@@ -98,7 +98,7 @@ export function DeliveryMap({
           onLocationSelect(
             latitude,
             longitude,
-            `Mi ubicación: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
+            `My location: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
           )
         }
         setLoading(false)
@@ -114,7 +114,7 @@ export function DeliveryMap({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm font-medium text-card-foreground">
           <MapPin className="h-4 w-4 text-primary" />
-          Selecciona tu ubicación en el mapa
+          Select your location on the map
         </div>
         <Button
           type="button"
@@ -125,7 +125,7 @@ export function DeliveryMap({
           className="gap-1.5"
         >
           <Locate className="h-4 w-4" />
-          {loading ? "Localizando..." : "Mi ubicación"}
+          {loading ? "Locating..." : "My location"}
         </Button>
       </div>
       <div
@@ -134,7 +134,7 @@ export function DeliveryMap({
       />
       {selectedAddress && (
         <p className="rounded-md bg-secondary px-3 py-2 text-sm text-secondary-foreground">
-          <span className="font-medium">Dirección:</span> {selectedAddress}
+          <span className="font-medium">Address:</span> {selectedAddress}
         </p>
       )}
     </div>

@@ -54,7 +54,7 @@ export function RestaurantDetail({
               className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground"
             >
               <ArrowLeft className="h-4 w-4" />
-              Volver a restaurantes
+              Back to restaurants
             </Link>
             <h1 className="font-serif text-3xl font-bold text-primary-foreground md:text-4xl lg:text-5xl">
               {restaurant.name}
@@ -94,13 +94,13 @@ export function RestaurantDetail({
               onClick={() => setReservationOpen(true)}
             >
               <CalendarDays className="h-4 w-4" />
-              Reservar Mesa
+              Book a Table
             </Button>
             {itemCount > 0 && (
               <Link href="/cart">
                 <Button className="gap-2">
                   <ShoppingCart className="h-4 w-4" />
-                  Ver Carrito ({itemCount})
+                  View Cart ({itemCount})
                 </Button>
               </Link>
             )}
@@ -111,36 +111,43 @@ export function RestaurantDetail({
       {/* Menu */}
       <section className="mx-auto max-w-7xl px-4 py-10 lg:px-8">
         <h2 className="font-serif text-2xl font-bold text-foreground md:text-3xl">
-          Nuestra Carta
+          Our Menu
         </h2>
         <p className="mt-1 text-muted-foreground">
-          Selecciona los platos que desees para tu pedido a domicilio
+          Select the dishes you want for your home delivery order
         </p>
 
-        <Tabs defaultValue={categories[0]} className="mt-6">
-          <TabsList className="flex flex-wrap gap-1 bg-secondary">
+        {categories.length > 0 ? (
+          <Tabs defaultValue={categories[0]} className="mt-6">
+            <TabsList className="flex flex-wrap gap-1 bg-secondary">
+              {categories.map((cat) => (
+                <TabsTrigger key={cat} value={cat} className="text-sm">
+                  {cat}
+                </TabsTrigger>
+              ))}
+            </TabsList>
             {categories.map((cat) => (
-              <TabsTrigger key={cat} value={cat} className="text-sm">
-                {cat}
-              </TabsTrigger>
+              <TabsContent key={cat} value={cat} className="mt-6">
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                  {restaurant.menu
+                    .filter((m) => m.category === cat)
+                    .map((item) => (
+                      <MenuItemCard
+                        key={item.id}
+                        item={item}
+                        restaurantId={restaurant.id}
+                      />
+                    ))}
+                </div>
+              </TabsContent>
             ))}
-          </TabsList>
-          {categories.map((cat) => (
-            <TabsContent key={cat} value={cat} className="mt-6">
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                {restaurant.menu
-                  .filter((m) => m.category === cat)
-                  .map((item) => (
-                    <MenuItemCard
-                      key={item.id}
-                      item={item}
-                      restaurantId={restaurant.id}
-                    />
-                  ))}
-              </div>
-            </TabsContent>
-          ))}
-        </Tabs>
+          </Tabs>
+        ) : (
+          <div className="mt-10 flex flex-col items-center py-16 text-center">
+            <p className="text-lg text-muted-foreground">No menu items available yet.</p>
+            <p className="mt-1 text-sm text-muted-foreground">The admin can add items from the admin panel.</p>
+          </div>
+        )}
       </section>
 
       {/* Reservation Dialog */}
@@ -148,7 +155,7 @@ export function RestaurantDetail({
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="font-serif text-xl">
-              Reservar Mesa - {restaurant.name}
+              Book a Table - {restaurant.name}
             </DialogTitle>
           </DialogHeader>
           <ReservationForm

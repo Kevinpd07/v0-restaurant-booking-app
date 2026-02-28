@@ -16,7 +16,7 @@ export function Header() {
         <Link href="/" className="flex items-center gap-2">
           <UtensilsCrossed className="h-6 w-6 text-primary" />
           <span className="font-serif text-xl font-bold text-foreground">
-            Sabores de Granada
+            Flavors of Granada
           </span>
         </Link>
 
@@ -25,7 +25,7 @@ export function Header() {
             href="/"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
-            Restaurantes
+            Restaurants
           </Link>
           <Link
             href="/admin"
@@ -37,7 +37,7 @@ export function Header() {
           <Link href="/cart">
             <Button variant="outline" size="sm" className="relative gap-2">
               <ShoppingCart className="h-4 w-4" />
-              <span className="sr-only">Carrito</span>
+              <span className="sr-only">Cart</span>
               {itemCount > 0 && (
                 <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
                   {itemCount}
@@ -68,7 +68,7 @@ export function Header() {
               onClick={() => setMobileOpen(false)}
               className="text-sm font-medium text-muted-foreground"
             >
-              Restaurantes
+              Restaurants
             </Link>
             <Link
               href="/admin"
@@ -81,7 +81,7 @@ export function Header() {
             <Link href="/cart" onClick={() => setMobileOpen(false)}>
               <Button variant="outline" size="sm" className="relative gap-2">
                 <ShoppingCart className="h-4 w-4" />
-                Carrito
+                Cart
                 {itemCount > 0 && (
                   <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
                     {itemCount}

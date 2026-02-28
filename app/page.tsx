@@ -1,11 +1,15 @@
-import { restaurants } from "@/lib/data"
+"use client"
+
 import { Header } from "@/components/header"
 import { Hero } from "@/components/hero"
 import { RestaurantCard } from "@/components/restaurant-card"
 import { Footer } from "@/components/footer"
 import { MapPin, Truck, CalendarDays } from "lucide-react"
+import { useMenuStore } from "@/lib/menu-store"
 
 export default function HomePage() {
+  const restaurants = useMenuStore((s) => s.restaurants)
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
@@ -17,18 +21,18 @@ export default function HomePage() {
             {[
               {
                 icon: Truck,
-                title: "Envío a Domicilio",
-                desc: "Recibe tu pedido en menos de 45 minutos",
+                title: "Home Delivery",
+                desc: "Receive your order in less than 45 minutes",
               },
               {
                 icon: CalendarDays,
-                title: "Reserva Mesa",
-                desc: "Reserva en tus restaurantes favoritos al instante",
+                title: "Book a Table",
+                desc: "Reserve at your favorite restaurants instantly",
               },
               {
                 icon: MapPin,
-                title: "Ubicación GPS",
-                desc: "Comparte tu ubicación para entregas precisas",
+                title: "GPS Location",
+                desc: "Share your location for accurate deliveries",
               },
             ].map((feat) => (
               <div
@@ -53,14 +57,14 @@ export default function HomePage() {
         <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
           <div className="mb-10 text-center">
             <p className="text-sm font-semibold uppercase tracking-widest text-primary">
-              Nuestra selección
+              Our Selection
             </p>
             <h2 className="mt-2 font-serif text-3xl font-bold text-foreground md:text-4xl text-balance">
-              Restaurantes en Granada
+              Restaurants in Granada
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-muted-foreground text-pretty">
-              Elige entre los mejores restaurantes de la ciudad y disfruta de
-              una experiencia gastronómica única.
+              Choose from the best restaurants in the city and enjoy a unique
+              culinary experience.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
