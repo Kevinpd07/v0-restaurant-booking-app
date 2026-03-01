@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Shield,
   LogOut,
@@ -45,7 +45,7 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAdminStore, type Order } from "@/lib/admin-store"
 import { useMenuStore } from "@/lib/menu-store"
-import type { MenuItem } from "@/lib/data"
+import type { MenuItem } from "@/lib/supabase-data"
 import { toast } from "sonner"
 import Link from "next/link"
 
@@ -169,7 +169,7 @@ function MenuItemFormDialog({
   })
   const [useNewCategory, setUseNewCategory] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const category = useNewCategory ? form.newCategory.trim() : form.category
     if (!form.name.trim() || !category || !form.price) {
@@ -183,7 +183,7 @@ function MenuItemFormDialog({
     }
 
     if (editItem) {
-      updateMenuItem(restaurantId, editItem.id, {
+      await updateMenuItem(editItem.id, {
         name: form.name.trim(),
         description: form.description.trim(),
         price,
@@ -191,14 +191,13 @@ function MenuItemFormDialog({
       })
       toast.success("Menu item updated")
     } else {
-      const newItem: MenuItem = {
-        id: `item-${Date.now().toString(36)}`,
+      const newItem = {
         name: form.name.trim(),
         description: form.description.trim(),
         price,
         category,
       }
-      addMenuItem(restaurantId, newItem)
+      await addMenuItem(restaurantId, newItem)
       toast.success("Menu item added")
     }
     onOpenChange(false)
@@ -361,14 +360,24 @@ function DeleteConfirmDialog({
 
 /* ─── MENU MANAGEMENT TAB ─── */
 function MenuManagement() {
-  const { restaurants } = useMenuStore()
-  const deleteMenuItem = useMenuStore((s) => s.deleteMenuItem)
-  const getCategories = useMenuStore((s) => s.getCategories)
+  const { restaurants, fetchRestaurants, addMenuItem, updateMenuItem, deleteMenuItem, getCategories } = useMenuStore()
   const [selectedRestaurant, setSelectedRestaurant] = useState(restaurants[0]?.id || "")
   const [formOpen, setFormOpen] = useState(false)
   const [editItem, setEditItem] = useState<MenuItem | null>(null)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
+
+  // Fetch restaurants on mount
+  useEffect(() => {
+    fetchRestaurants()
+  }, [fetchRestaurants])
+
+  // Update selected restaurant when restaurants load
+  useEffect(() => {
+    if (restaurants.length > 0 && !selectedRestaurant) {
+      setSelectedRestaurant(restaurants[0].id)
+    }
+  }, [restaurants, selectedRestaurant])
 
   const restaurant = restaurants.find((r) => r.id === selectedRestaurant)
   const categories = restaurant ? getCategories(selectedRestaurant) : []
@@ -388,9 +397,9 @@ function MenuManagement() {
     setDeleteOpen(true)
   }
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (deleteTarget) {
-      deleteMenuItem(selectedRestaurant, deleteTarget.id)
+      await deleteMenuItem(selectedRestaurant, deleteTarget.id)
       toast.success("Menu item deleted")
     }
   }
@@ -424,7 +433,7 @@ function MenuManagement() {
       {restaurant && categories.length > 0 ? (
         <div className="space-y-6">
           {categories.map((cat) => {
-            const items = restaurant.menu.filter((m) => m.category === cat)
+            const items = (restaurant.menu || []).filter((m) => m.category === cat)
             return (
               <div key={cat} className="rounded-xl border border-border bg-card">
                 <div className="flex items-center justify-between border-b border-border px-5 py-3">

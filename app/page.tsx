@@ -6,9 +6,16 @@ import { RestaurantCard } from "@/components/restaurant-card"
 import { Footer } from "@/components/footer"
 import { MapPin, Truck, CalendarDays } from "lucide-react"
 import { useMenuStore } from "@/lib/menu-store"
+import { useEffect } from "react"
 
 export default function HomePage() {
   const restaurants = useMenuStore((s) => s.restaurants)
+  const fetchRestaurants = useMenuStore((s) => s.fetchRestaurants)
+  const isLoading = useMenuStore((s) => s.isLoading)
+
+  useEffect(() => {
+    fetchRestaurants()
+  }, [fetchRestaurants])
 
   return (
     <div className="flex min-h-screen flex-col">

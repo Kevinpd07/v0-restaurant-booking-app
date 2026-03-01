@@ -17,62 +17,77 @@ export function DeliveryMap({
   const mapInstanceRef = useRef<L.Map | null>(null)
   const markerRef = useRef<L.Marker | null>(null)
   const [loading, setLoading] = useState(false)
+  const [isMapReady, setIsMapReady] = useState(false)
 
   useEffect(() => {
-    if (!mapRef.current || mapInstanceRef.current) return
+    // Prevent multiple initializations
+    if (!mapRef.current || mapInstanceRef.current || isMapReady) return
+
+    let isMounted = true
 
     const initMap = async () => {
-      const L = (await import("leaflet")).default
-      await import("leaflet/dist/leaflet.css")
+      try {
+        const L = (await import("leaflet")).default
+        // Note: Leaflet CSS should be imported in the global layout or component that uses this
+        // For now we skip the CSS import here as it may cause issues
 
-      const map = L.map(mapRef.current!, {
-        center: [37.176, -3.5988],
-        zoom: 14,
-      })
+        if (!isMounted || !mapRef.current || mapInstanceRef.current) return
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "&copy; OpenStreetMap contributors",
-      }).addTo(map)
+        const map = L.map(mapRef.current, {
+          center: [37.176, -3.5988],
+          zoom: 14,
+        })
 
-      const customIcon = L.divIcon({
-        html: `<div style="background:#c0392b;width:28px;height:28px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,.3);"></div>`,
-        iconSize: [28, 28],
-        iconAnchor: [14, 28],
-        className: "",
-      })
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "&copy; OpenStreetMap contributors",
+        }).addTo(map)
 
-      map.on("click", (e: L.LeafletMouseEvent) => {
-        const { lat, lng } = e.latlng
-        if (markerRef.current) {
-          markerRef.current.setLatLng([lat, lng])
-        } else {
-          markerRef.current = L.marker([lat, lng], { icon: customIcon }).addTo(
-            map
+        const customIcon = L.divIcon({
+          html: `<div style="background:#c0392b;width:28px;height:28px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,.3);"></div>`,
+          iconSize: [28, 28],
+          iconAnchor: [14, 28],
+          className: "",
+        })
+
+        map.on("click", (e: L.LeafletMouseEvent) => {
+          const { lat, lng } = e.latlng
+          if (markerRef.current) {
+            markerRef.current.setLatLng([lat, lng])
+          } else {
+            markerRef.current = L.marker([lat, lng], { icon: customIcon }).addTo(
+              map
+            )
+          }
+          onLocationSelect(
+            lat,
+            lng,
+            `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)} - Granada`
           )
-        }
-        onLocationSelect(
-          lat,
-          lng,
-          `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)} - Granada`
-        )
-      })
+        })
 
-      mapInstanceRef.current = map
+        mapInstanceRef.current = map
+        setIsMapReady(true)
+      } catch (error) {
+        console.error("Error initializing map:", error)
+      }
     }
 
     initMap()
 
     return () => {
+      isMounted = false
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove()
         mapInstanceRef.current = null
+        markerRef.current = null
+        setIsMapReady(false)
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []) // Empty dependency array - only run once
 
   const handleLocate = () => {
-    if (!navigator.geolocation) return
+    if (!navigator.geolocation || !mapInstanceRef.current) return
     setLoading(true)
     navigator.geolocation.getCurrentPosition(
       async (position) => {
@@ -121,7 +136,7 @@ export function DeliveryMap({
           variant="outline"
           size="sm"
           onClick={handleLocate}
-          disabled={loading}
+          disabled={loading || !isMapReady}
           className="gap-1.5"
         >
           <Locate className="h-4 w-4" />
