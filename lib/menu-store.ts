@@ -1,52 +1,89 @@
 import { create } from "zustand"
-import { defaultRestaurants, type Restaurant, type MenuItem } from "./data"
+import { 
+  getRestaurants, 
+  getRestaurantById, 
+  addMenuItem as supabaseAddMenuItem,
+  updateMenuItem as supabaseUpdateMenuItem,
+  deleteMenuItem as supabaseDeleteMenuItem,
+  type Restaurant, 
+  type MenuItem 
+} from "./supabase-data"
 
 interface MenuState {
   restaurants: Restaurant[]
+  isLoading: boolean
+  error: string | null
+  fetchRestaurants: () => Promise<void>
+  fetchRestaurantById: (id: string) => Promise<Restaurant | null>
   getRestaurant: (id: string) => Restaurant | undefined
-  addMenuItem: (restaurantId: string, item: MenuItem) => void
-  updateMenuItem: (restaurantId: string, itemId: string, updates: Partial<MenuItem>) => void
-  deleteMenuItem: (restaurantId: string, itemId: string) => void
-  addCategory: (restaurantId: string, category: string) => void
   getCategories: (restaurantId: string) => string[]
+  addMenuItem: (restaurantId: string, item: Omit<MenuItem, 'id'>) => Promise<boolean>
+  updateMenuItem: (itemId: string, updates: Partial<MenuItem>) => Promise<boolean>
+  deleteMenuItem: (restaurantId: string, itemId: string) => Promise<boolean>
 }
 
 export const useMenuStore = create<MenuState>((set, get) => ({
-  restaurants: defaultRestaurants,
-  getRestaurant: (id) => get().restaurants.find((r) => r.id === id),
-  addMenuItem: (restaurantId, item) =>
-    set((state) => ({
-      restaurants: state.restaurants.map((r) =>
-        r.id === restaurantId ? { ...r, menu: [...r.menu, item] } : r
-      ),
-    })),
-  updateMenuItem: (restaurantId, itemId, updates) =>
-    set((state) => ({
-      restaurants: state.restaurants.map((r) =>
-        r.id === restaurantId
-          ? {
-              ...r,
-              menu: r.menu.map((m) =>
-                m.id === itemId ? { ...m, ...updates } : m
-              ),
-            }
-          : r
-      ),
-    })),
-  deleteMenuItem: (restaurantId, itemId) =>
-    set((state) => ({
-      restaurants: state.restaurants.map((r) =>
-        r.id === restaurantId
-          ? { ...r, menu: r.menu.filter((m) => m.id !== itemId) }
-          : r
-      ),
-    })),
-  addCategory: (_restaurantId, _category) => {
-    // categories are derived from menu items, no explicit storage needed
+  restaurants: [],
+  isLoading: false,
+  error: null,
+
+  fetchRestaurants: async () => {
+    set({ isLoading: true, error: null })
+    try {
+      const restaurants = await getRestaurants()
+      set({ restaurants, isLoading: false })
+    } catch (error) {
+      set({ error: 'Failed to fetch restaurants', isLoading: false })
+    }
   },
+
+  fetchRestaurantById: async (id: string) => {
+    set({ isLoading: true, error: null })
+    try {
+      const restaurant = await getRestaurantById(id)
+      set({ isLoading: false })
+      return restaurant
+    } catch (error) {
+      set({ error: 'Failed to fetch restaurant', isLoading: false })
+      return null
+    }
+  },
+
+  getRestaurant: (id) => get().restaurants.find((r) => r.id === id),
+  
   getCategories: (restaurantId) => {
-    const r = get().restaurants.find((r) => r.id === restaurantId)
-    if (!r) return []
-    return [...new Set(r.menu.map((m) => m.category))]
+    const restaurant = get().restaurants.find((r) => r.id === restaurantId)
+    if (!restaurant || !restaurant.menu) return []
+    return [...new Set(restaurant.menu.map((m) => m.category))]
+  },
+
+  addMenuItem: async (restaurantId: string, item: Omit<MenuItem, 'id'>) => {
+    const result = await supabaseAddMenuItem(restaurantId, item)
+    if (result) {
+      // Refresh restaurants to get updated menu
+      await get().fetchRestaurants()
+      return true
+    }
+    return false
+  },
+
+  updateMenuItem: async (itemId: string, updates: Partial<MenuItem>) => {
+    const result = await supabaseUpdateMenuItem(itemId, updates)
+    if (result) {
+      // Refresh restaurants to get updated menu
+      await get().fetchRestaurants()
+      return true
+    }
+    return false
+  },
+
+  deleteMenuItem: async (restaurantId: string, itemId: string) => {
+    const result = await supabaseDeleteMenuItem(itemId)
+    if (result) {
+      // Refresh restaurants to get updated menu
+      await get().fetchRestaurants()
+      return true
+    }
+    return false
   },
 }))

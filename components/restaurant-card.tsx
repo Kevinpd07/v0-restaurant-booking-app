@@ -3,15 +3,22 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Star, Clock, MapPin } from "lucide-react"
-import type { Restaurant } from "@/lib/data"
+import type { Restaurant } from "@/lib/supabase-data"
 
 export function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
+  // Handle hours as either string or JSON
+  const hoursText = typeof restaurant.hours === 'string' 
+    ? restaurant.hours 
+    : restaurant.hours 
+      ? `${restaurant.hours.mon || '9-22'}` 
+      : 'Call for hours'
+
   return (
     <Link href={`/restaurant/${restaurant.id}`} className="group block">
       <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
         <div className="relative aspect-[16/10] overflow-hidden">
           <Image
-            src={restaurant.image}
+            src={restaurant.image_url || '/images/hero-granada.jpg'}
             alt={restaurant.name}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -39,11 +46,11 @@ export function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
             </div>
             <div className="flex items-center gap-1">
               <Clock className="h-4 w-4" />
-              <span>{restaurant.hours}</span>
+              <span>{hoursText}</span>
             </div>
             <div className="flex items-center gap-1">
               <MapPin className="h-4 w-4" />
-              <span className="truncate">{restaurant.address.split(",")[0]}</span>
+              <span className="truncate">{restaurant.address?.split(",")[0]}</span>
             </div>
           </div>
         </div>

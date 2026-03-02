@@ -3,7 +3,7 @@
 import { Plus, Minus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCartStore } from "@/lib/cart-store"
-import type { MenuItem } from "@/lib/data"
+import type { MenuItem } from "@/lib/supabase-data"
 import { toast } from "sonner"
 
 export function MenuItemCard({

@@ -23,15 +23,22 @@ import {
 import { MenuItemCard } from "@/components/menu-item-card"
 import { ReservationForm } from "@/components/reservation-form"
 import { useCartStore } from "@/lib/cart-store"
-import type { Restaurant } from "@/lib/data"
+import type { RestaurantWithMenu } from "@/lib/supabase-data"
 
 export function RestaurantDetail({
   restaurant,
 }: {
-  restaurant: Restaurant
+  restaurant: RestaurantWithMenu
 }) {
   const [reservationOpen, setReservationOpen] = useState(false)
   const itemCount = useCartStore((s) => s.getItemCount())
+
+  // Handle hours as either string or JSON
+  const hoursText = typeof restaurant.hours === 'string' 
+    ? restaurant.hours 
+    : restaurant.hours 
+      ? `${restaurant.hours.mon || '9-22'}` 
+      : 'Call for hours'
 
   const categories = [...new Set(restaurant.menu.map((m) => m.category))]
 
@@ -40,7 +47,7 @@ export function RestaurantDetail({
       {/* Hero */}
       <div className="relative h-64 overflow-hidden md:h-80 lg:h-96">
         <Image
-          src={restaurant.image}
+          src={restaurant.image_url || '/images/hero-granada.jpg'}
           alt={restaurant.name}
           fill
           className="object-cover"
@@ -77,7 +84,7 @@ export function RestaurantDetail({
           </div>
           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <Clock className="h-4 w-4" />
-            {restaurant.hours}
+            {hoursText}
           </div>
           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <MapPin className="h-4 w-4" />
